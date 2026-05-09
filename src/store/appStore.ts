@@ -1,11 +1,12 @@
 import { create } from 'zustand';
-import type { AuthSession, RequestResult } from '../types/api';
-import { DEFAULT_BASE_URL, loadHistory, loadSession, saveHistory, saveSession, STORAGE_KEYS } from '../utils/storage';
+import type { AuthSession, RequestResult, SavedUserProfile } from '../types/api';
+import { DEFAULT_BASE_URL, loadHistory, loadSavedProfiles, loadSession, saveHistory, saveSavedProfiles, saveSession, STORAGE_KEYS } from '../utils/storage';
 
 interface AppState {
   baseUrl: string;
   session: AuthSession | null;
   history: RequestResult[];
+  savedProfiles: SavedUserProfile[];
   selectedAccountId: string;
   manualLoginName: string;
   theme: 'dark' | 'light';
@@ -17,6 +18,9 @@ interface AppState {
   clearSession: () => void;
   addHistory: (entry: RequestResult) => void;
   clearHistory: () => void;
+  saveProfile: (profile: SavedUserProfile) => void;
+  deleteProfile: (id: string) => void;
+  markProfileUsed: (id: string) => void;
   setSelectedAccountId: (id: string) => void;
   setManualLoginName: (value: string) => void;
   toggleTheme: () => void;
@@ -30,6 +34,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   baseUrl: localStorage.getItem(STORAGE_KEYS.baseUrl) || DEFAULT_BASE_URL,
   session: loadSession(),
   history: loadHistory(),
+  savedProfiles: loadSavedProfiles(),
   selectedAccountId: 'tdwl-icm-1008051',
   manualLoginName: '',
   theme: initialTheme,
@@ -66,6 +71,21 @@ export const useAppStore = create<AppState>((set, get) => ({
   clearHistory: () => {
     saveHistory([]);
     set({ history: [] });
+  },
+  saveProfile: (profile) => {
+    const profiles = [profile, ...get().savedProfiles.filter((item) => item.id !== profile.id)].slice(0, 12);
+    saveSavedProfiles(profiles);
+    set({ savedProfiles: profiles });
+  },
+  deleteProfile: (id) => {
+    const profiles = get().savedProfiles.filter((item) => item.id !== id);
+    saveSavedProfiles(profiles);
+    set({ savedProfiles: profiles });
+  },
+  markProfileUsed: (id) => {
+    const profiles = get().savedProfiles.map((item) => item.id === id ? { ...item, lastUsedAt: Date.now() } : item);
+    saveSavedProfiles(profiles);
+    set({ savedProfiles: profiles });
   },
   setSelectedAccountId: (selectedAccountId) => set({ selectedAccountId }),
   setManualLoginName: (manualLoginName) => set({ manualLoginName }),

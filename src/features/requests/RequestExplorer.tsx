@@ -20,6 +20,7 @@ export function RequestExplorer() {
   const [result, setResult] = useState<RequestResult>();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- request templates must refresh when a user switches endpoints/session variables.
     setPayload(formatJson(hydrateBody(active, session, manualLoginName)));
   }, [active, activeId, manualLoginName, session]);
 

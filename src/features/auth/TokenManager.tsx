@@ -10,7 +10,7 @@ import { secondsToLabel } from '../../utils/json';
 
 export function TokenManager() {
   const { session, clearSession, autoRefresh, setAutoRefresh } = useAppStore();
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(0);
   const refreshMutation = useMutation({
     mutationFn: refreshTradeToken,
     onSuccess: ({ auth }) => auth.authSts === 1 ? toast.success('Token refreshed') : toast.error(auth.rejResn || 'Refresh rejected; session cleared'),
@@ -25,7 +25,7 @@ export function TokenManager() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
-  const ageSeconds = useMemo(() => session ? Math.floor((now - session.savedAt) / 1000) : 0, [now, session]);
+  const ageSeconds = useMemo(() => session && now ? Math.floor((now - session.savedAt) / 1000) : 0, [now, session]);
   const warning = Boolean(session?.tokenRefreshInt && ageSeconds > session.tokenRefreshInt * .8);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export function TokenManager() {
     if (!autoRefresh || !session?.tokenRefreshInt) return;
     const interval = window.setInterval(() => refreshMutation.mutate(), Math.max(15, session.tokenRefreshInt - 10) * 1000);
     return () => window.clearInterval(interval);
-  }, [autoRefresh, refreshMutation.mutate, session?.tokenRefreshInt]);
+  }, [autoRefresh, refreshMutation, session?.tokenRefreshInt]);
 
   if (!session) return null;
   return <aside className="glass rounded-[2rem] p-5">

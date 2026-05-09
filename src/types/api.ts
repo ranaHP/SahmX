@@ -54,6 +54,11 @@ export interface DemoAccount {
   lgnNme: string;
 }
 
+export interface SavedUserProfile extends DemoAccount {
+  createdAt: number;
+  lastUsedAt?: number;
+}
+
 export type ApiCategory = 'Authentication & Authorization' | 'Customer' | 'Order' | 'Onboarding' | 'Trading / Market features';
 
 export interface CustomerTradingAccount extends JsonObject {
@@ -80,6 +85,18 @@ export interface RequestDefinition {
   requiresAuth: boolean;
   description: string;
   body: JsonObject;
+}
+
+export interface BulkOrderDraft {
+  id: string;
+  symbol: string;
+  side: '1' | '2';
+  ordQty: number;
+  price: number;
+  ordTyp: '1' | '2';
+  tif: number;
+  minQty: number;
+  disQty: number;
 }
 
 export interface RequestResult {

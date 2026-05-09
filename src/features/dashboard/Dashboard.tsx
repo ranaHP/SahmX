@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Activity, BadgeCheck, Clock, Landmark, UserRound, Zap } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Bar } from 'recharts';
+import type { LucideIcon } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 import { secondsToLabel } from '../../utils/json';
 
@@ -8,7 +9,7 @@ export function Dashboard() {
   const { session, history } = useAppStore();
   const latency = [...history].reverse().slice(-12).map((h, i) => ({ name: `${i + 1}`, ms: h.responseTimeMs, ok: h.ok ? 1 : 0 }));
   const trend = [...history].reverse().slice(-12).map((h, i) => ({ name: `${i + 1}`, success: h.ok ? 1 : 0, failure: h.ok ? 0 : 1 }));
-  const cards = [
+  const cards: Array<[string, string | number, LucideIcon]> = [
     ['Session status', session ? 'Authenticated' : 'Guest', BadgeCheck], ['Customer name', session?.cusNme || 'Not supplied', UserRound], ['Customer ID', session?.customerId || 'Not supplied', Landmark], ['Institution ID', session?.instId || 'Not supplied', Landmark], ['Last login time', session?.lstLgnTme || 'Not supplied', Clock], ['Token refresh interval', secondsToLabel(session?.tokenRefreshInt), Zap], ['Default trading account', session?.tradingAccId || 'Run Customer Details', Landmark], ['Default cash account', session?.cashAccId || 'Run Customer Details', Landmark],
   ];
   return <section className="space-y-6">

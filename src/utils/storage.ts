@@ -1,4 +1,4 @@
-import type { AuthSession, RequestResult } from '../types/api';
+import type { AuthSession, RequestResult, SavedUserProfile } from '../types/api';
 
 export const STORAGE_KEYS = {
   baseUrl: 'dfn_lwapi_base_url',
@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   history: 'dfn_lwapi_request_history',
   theme: 'dfn_lwapi_theme',
   autoRefresh: 'dfn_lwapi_auto_refresh',
+  savedProfiles: 'dfn_lwapi_saved_profiles',
 } as const;
 
 export const DEFAULT_BASE_URL = 'http://localhost:8080';
@@ -27,3 +28,6 @@ export const loadSession = () => readJson<AuthSession | null>(STORAGE_KEYS.sessi
 export const saveSession = (session: AuthSession | null) => session ? writeJson(STORAGE_KEYS.session, session) : localStorage.removeItem(STORAGE_KEYS.session);
 export const loadHistory = () => readJson<RequestResult[]>(STORAGE_KEYS.history, []);
 export const saveHistory = (history: RequestResult[]) => writeJson(STORAGE_KEYS.history, history.slice(0, 80));
+
+export const loadSavedProfiles = () => readJson<SavedUserProfile[]>(STORAGE_KEYS.savedProfiles, []);
+export const saveSavedProfiles = (profiles: SavedUserProfile[]) => writeJson(STORAGE_KEYS.savedProfiles, profiles);

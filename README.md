@@ -2,7 +2,7 @@
 
 **Developed by Hansana Ranaweera**
 
-A premium React + TypeScript + Vite frontend for demonstrating the Saudi share-market **DFN LWAPI GW APIs - Rest** token flow. The app is dark-mode first with a new royal blue / electric cyan / violet palette, animated with Framer Motion, styled with Tailwind CSS, and uses TanStack Query, Zustand, Axios, Lucide React, Recharts, and localStorage.
+A premium React + TypeScript + Vite frontend for demonstrating the Saudi share-market **DFN LWAPI GW APIs - Rest** token flow as a trading workstation. The app is dark-mode first with a royal blue / electric cyan / violet palette, animated with Framer Motion, styled with Tailwind CSS, and uses TanStack Query, Zustand, Axios, Lucide React, Recharts, and localStorage.
 
 ## API scope
 
@@ -54,7 +54,7 @@ The mock listens at `http://localhost:8080`, matching the frontend default `base
 curl http://localhost:8080/health
 ```
 
-The dummy backend covers Auth, Customer, Order, Holdings, Buying Power, OTP, and Onboarding availability routes. It is for local demos only and does not connect to a real trading system.
+The dummy backend covers Auth, Customer, Order, Holdings, Buying Power, OTP, and Onboarding availability routes. It is for local demos only and does not connect to a real trading system. The Trading Desk can send bulk `/Order/New` batches against this mock server safely.
 
 ## Environment configuration
 
@@ -69,7 +69,7 @@ All API calls are sent to `baseUrl + endpoint`.
 ## Authentication and token flow
 
 1. Start with **Trade Authentication – Classic** (`POST /Auth/Login`).
-2. Select a demo account card or paste the encrypted `lgnNme` from the Postman collection manually.
+2. Select a demo account card, paste an encrypted `lgnNme`, or use a saved user profile for one-click login.
 3. On `authSts === 1` or `authSts === 9`, the app stores these values in Zustand and localStorage:
    - `tradeToken`
    - `refreshToken`
@@ -84,14 +84,14 @@ All API calls are sent to `baseUrl + endpoint`.
 6. Token verification calls `POST /Auth/Verify` with `msgType: 468` and the current `tradeToken` header.
 7. Customer Details calls `POST /Customer/Details` and mirrors the Postman test script by saving the default `tradingAccId` and default `cashAccId` when available.
 8. Buying Power, Holdings, and Order calls reuse the saved default account IDs from Customer Details.
-9. Order/New, Order/Update, and Order/Cancel are editable demo requests from the Postman collection; review payload values before sending because they can affect orders on a connected gateway.
+9. The Trading Desk stages bulk order rows and sends sequential `/Order/New` requests using the saved default `tradingAccId`. Order/New, Order/Update, and Order/Cancel are editable demo requests from the Postman collection; review payload values before sending because they can affect orders on a connected gateway.
 10. Logout calls `POST /Auth/Logout`; on `status === 1`, local session data is cleared.
 
 > Security note: this is a localhost/demo application. Tokens are masked in the UI but stored in localStorage for persistence. Use **Clear Session** after demos.
 
 ## Demo accounts
 
-The account switcher is populated from the Postman collection comments supplied with this task:
+The account switcher is populated from the Postman collection comments supplied with this task. You can also click **Save user** to store any selected/manual encrypted login locally for quick future login:
 
 - `1000016` / `001000016011` / Jadwa Custody / symbols `1140 / 2222 / 7010`
 - `1009665` / `100 trading account`
@@ -99,9 +99,20 @@ The account switcher is populated from the Postman collection comments supplied 
 
 Each card carries the encrypted `lgnNme` from the collection snippet. You can still paste a different encrypted login name into the manual override field before logging in.
 
-## Request explorer
+## Trading Desk
 
-The request explorer provides:
+The main authenticated workspace opens on **Trading Desk**, a production-style blotter for staged order entry. It provides:
+
+- Account context from Customer Details (`tradingAccId` / `cashAccId`).
+- Editable bulk order rows for TDWL symbols.
+- Batch notional summary.
+- Explicit arm/review checkbox before submit.
+- Sequential `/Order/New` requests with generated `remoteClOrdID` values.
+- Per-order HTTP status and latency results.
+
+## API Console
+
+The API Console remains available for lower-level request inspection and provides:
 
 - Category sidebar for Authentication and Authorization, Customer, Order, Onboarding, and supported Trading / Market sections.
 - Method badges and endpoints.
